@@ -5,7 +5,6 @@
             [ring.middleware.defaults :refer [wrap-defaults
                                               api-defaults]]
             [ring.middleware.json :refer [wrap-json-body]]
-            [trabalho.db :as db]
             [clj-http.client	:as	http-client]))
 
 ;UTILS;;;;;;
@@ -77,16 +76,10 @@
   (atualizaHistoricoVenda codigoAcao valor)
   (atualizaAcoesVenda codigoAcao))
 
-
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-
 (defroutes app-routes
   (GET "/" [] "Olá, mundo!")
   (GET "/companhias" [] (let [body (:body (http-client/get "https://brapi.dev/api/quote/list?token=58iNus1bh51Ymw9gXmzuop")) stocks (get-in (json/parse-string body true) [:stocks])]
                           (como-json (map #(hash-map :nome (:name %) :codigo (:stock %)) stocks))))
-
-  ;(GET "/acao/:codigoAcao" [codigoAcao]
-   ; (como-json (infoAcaoMapper (infoAcao codigoAcao))))
   (GET "/info/:codigoAcao" [codigoAcao]
     (try
       (como-json (infoAcaoMapper (infoAcao codigoAcao)))
@@ -97,10 +90,6 @@
     (como-json (exibeHistoricoDepedendoDoTipo "venda")))
   (GET "/compras" []
     (como-json (exibeHistoricoDepedendoDoTipo "compra")))
-
-  ;;Supostamente deu certo
-  ;(POST "/compra/:codigoAcao" [codigoAcao]
-   ; (-> (infoAcaoMapper (infoAcao codigoAcao)) (get-in [:precoAtual]) (adicionaCompra) (como-json 201)))
 
   (POST "/compra/:codigoAcao" [codigoAcao]
     (try
